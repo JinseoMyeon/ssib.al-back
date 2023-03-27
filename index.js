@@ -1,5 +1,6 @@
 const express = require("express");
 app = express();
+app.set('trust proxy', '127.0.0.1');
 app.use(express.urlencoded({ extended: false }));
    
 try {
