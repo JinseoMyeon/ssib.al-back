@@ -7,7 +7,7 @@ const datetime = new Date().toLocaleString();
 try {
     // GET /link
     router.get('', (req, res) => {
-        const ipAddr = req.socket.remoteAddress;
+        const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log(`[INFO] ${ipAddr} requested /link with query ${JSON.stringify(req.query)} at ${datetime}`);
         db.query("SELECT * FROM link", (err, links) => {
             if (err) {
