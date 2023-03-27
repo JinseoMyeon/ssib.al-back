@@ -5,6 +5,8 @@ const pingus = require("pingus")
 const router = express.Router();
 const datetime = new Date().toLocaleString();
 
+const urlRegex = /(http(s)?:\/\/)([a-z가-힣0-9\w]+\.*)+([a-z가-힣0-9]{2,})+([\/a-z0-9가-힣ㄱ-ㅣ-%#?&=\w])+(\.[a-z0-9가-힣ㄱ-ㅣ]{2,}(\?[\/a-z0-9가-힣ㄱ-ㅣ-%#?&=\w]+)*)*/gi;
+
 try {
     // GET /link
     router.get('', (req, res) => {
@@ -147,25 +149,28 @@ try {
         const ipAddr = req.ip;
         console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${datetime}`);
 
-        if (!req.query.url || !req.query.code) {
+        if (!req.query.url) {
             return res.json({response: 400, error: "No query parameters provided."});
+        }
+
+        if (urlRegex.test(req.query.url) == false) {
+            return res.json({response: 400, error: "Invalid URL."});
         }
 
         var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
         pingURL = pingURL.split("/")[0];
 
-        pingus.tcp({ host: pingURL, port: 443 }).then((result) => {
-            if (result.status != "open")
-                return res.json({response: 400, error: "Ping failed for requested URL."});
-            else {
-                if (req.query.url.includes("http://"))
-                    req.query.url = req.query.url.replace("http://", "https://");
-                if (req.query.url.includes("https://") != true)
-                    req.query.url = "https://" + req.query.url;
-            }
-        }).catch((err) => {
-            return res.json({response: 400, error: "Ping failed for requested URL."});
-        });
+        if (req.query.url.includes("http://")) {
+            // ping to 80 port
+        }
+
+        if (req.query.url.includes("https://")) {
+            // ping to 443 port
+        }
+
+        if (!req.query.code) {
+            
+        }
 
         db.query("SELECT * FROM link", (err, links) => {
             if (err) {
