@@ -1,5 +1,6 @@
 const express = require("express");
 const db = require("../db/db.js");
+const pingus = require("pingus")
 
 const router = express.Router();
 const datetime = new Date().toLocaleString();
@@ -143,12 +144,28 @@ try {
 
     // POST /link/create
     router.post('/create', (req, res) => {
-        const ipAddr = req.socket.remoteAddress;
+        const ipAddr = req.ip;
         console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${datetime}`);
 
         if (!req.query.url || !req.query.code) {
             return res.json({response: 400, error: "No query parameters provided."});
         }
+
+        var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
+        pingURL = pingURL.split("/")[0];
+
+        pingus.tcp({ host: pingURL, port: 443 }).then((result) => {
+            if (result.status != "open")
+                return res.json({response: 400, error: "Ping failed for requested URL."});
+            else {
+                if (req.query.url.includes("http://"))
+                    req.query.url = req.query.url.replace("http://", "https://");
+                if (req.query.url.includes("https://") != true)
+                    req.query.url = "https://" + req.query.url;
+            }
+        }).catch((err) => {
+            return res.json({response: 400, error: "Ping failed for requested URL."});
+        });
 
         db.query("SELECT * FROM link", (err, links) => {
             if (err) {
@@ -160,7 +177,7 @@ try {
                 return res.json({response: 409, error: "Link code already exists."});
             }
 
-            db.query("INSERT INTO link (url, code) VALUES (?, ?)", [req.query.url, req.query.code], (err, result) => {
+            db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [req.query.url, req.query.code, Date], (err) => {
                 if (err) {
                     console.log(err);
                     return res.json({response: 500, error: "Internal server error."});
