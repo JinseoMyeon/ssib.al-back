@@ -63,7 +63,7 @@ try {
 
     // GET /link/search
     router.get('/search', (req, res) => {
-        const ipAddr = req.socket.remoteAddress;
+        const ipAddr = req.ip;
         console.log(`[INFO] ${ipAddr} requested /link/search with query ${JSON.stringify(req.query)} at ${datetime}`);
 
         req.query.point = Number(req.query.point);
