@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("../db/db.js");
-const pingus = require("pingus");
+const tcp = require("tcp-ping");
 
 const router = express.Router();
 const datetime = new Date().toLocaleString();
@@ -165,10 +165,46 @@ try {
 
         if (req.query.url.includes("http://")) {
             // ping to 80 port
+            tcp.probe(pingURL, 80, (err, available) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({response: 400, error: "Ping failed for requested URL."});
+                }
+                else if (!available) {
+                    return res.json({response: 400, error: "Ping failed for requested URL."});
+                }
+            });
         }
 
-        if (req.query.url.includes("https://")) {
+        else if (req.query.url.includes("https://")) {
             // ping to 443 port
+            tcp.probe(pingURL, 443, (err, available) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({response: 400, error: "Ping failed for requested URL."});
+                }
+                else if (!available) {
+                    return res.json({response: 400, error: "Ping failed for requested URL."});
+                }
+            });
+        }
+
+        else {
+            tcp.probe(pingURL, 443, (err, available) => {
+                if (available) {
+                    req.query.url = "https://" + req.query.url;
+                }
+                else {
+                    tcp.probe(pingURL, 80, (err, available) => {
+                        if (available) {
+                            req.query.url = "http://" + req.query.url;
+                        }
+                        else {
+                            return res.json({response: 400, error: "Ping failed for requested URL."});
+                        }
+                    });
+                }
+            });
         }
 
         if (!req.query.code) {
