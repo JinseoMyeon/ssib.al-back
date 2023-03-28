@@ -1,11 +1,14 @@
 const express = require("express");
 const db = require("../db/db.js");
-const pingus = require("pingus")
+const pingus = require("pingus");
 
 const router = express.Router();
 const datetime = new Date().toLocaleString();
 
-const urlRegex = /(http(s)?:\/\/)([a-z가-힣0-9\w]+\.*)+([a-z가-힣0-9]{2,})+([\/a-z0-9가-힣ㄱ-ㅣ-%#?&=\w])+(\.[a-z0-9가-힣ㄱ-ㅣ]{2,}(\?[\/a-z0-9가-힣ㄱ-ㅣ-%#?&=\w]+)*)*/gi;
+const urlRegex = /http(s)?:\/\/(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
+
+const date = new Date();
+const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
 try {
     // GET /link
@@ -169,7 +172,12 @@ try {
         }
 
         if (!req.query.code) {
-            
+            var random = Math.floor((Math.random() * (2176782335 - 46656)) + 46656);
+            var code = random.toString(36);
+            console.log(code)
+        }
+        else {
+            var code = req.query.code;
         }
 
         db.query("SELECT * FROM link", (err, links) => {
@@ -182,7 +190,7 @@ try {
                 return res.json({response: 409, error: "Link code already exists."});
             }
 
-            db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [req.query.url, req.query.code, Date], (err) => {
+            db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [req.query.url, code, dateTimeNow], (err) => {
                 if (err) {
                     console.log(err);
                     return res.json({response: 500, error: "Internal server error."});
