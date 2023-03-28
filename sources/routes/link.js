@@ -5,7 +5,7 @@ const tcp = require("tcp-ping");
 const router = express.Router();
 const datetime = new Date().toLocaleString();
 
-const urlRegex = /http(s)?:\/\/(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
+const urlRegex = /(http(s)?:\/\/)?(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
 
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -231,7 +231,7 @@ try {
                     console.log(err);
                     return res.json({response: 500, error: "Internal server error."});
                 }
-                return res.json({response: 200, message: "Link created successfully."});
+                return res.json({response: 200, message: "Link created successfully.", info: {url: req.query.url, code: code, created: dateTimeNow}});
             });
         });
     });
