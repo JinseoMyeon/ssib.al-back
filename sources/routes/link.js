@@ -157,10 +157,6 @@ try {
             return res.json({response: 400, error: "No query parameters provided."});
         }
 
-        if (urlRegex.test(req.query.url) == false) {
-            return res.json({response: 400, error: "Invalid URL."});
-        }
-
         var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
         pingURL = pingURL.split("/")[0];
 
