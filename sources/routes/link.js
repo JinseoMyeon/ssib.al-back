@@ -1,14 +1,30 @@
 const express = require("express");
 const db = require("../db/db.js");
 const tcp = require("tcp-ping");
+const util = require('util');
 
 const router = express.Router();
+const tcpProbe = util.promisify(tcp.probe);
 const datetime = new Date().toLocaleString();
 
 const urlRegex = /(http(s)?:\/\/)?(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
 
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
+
+async function probe(ip, port) {
+    try {
+        await Promise.all(tcpProbe(ip, port).then((result) => {
+            return result;
+        }).catch((error) => {
+            return false;
+        })
+        );
+    } catch (error) {
+            console.log(error);
+            return false;
+    }
+}
 
 try {
     // GET /link
@@ -150,6 +166,8 @@ try {
     // POST /link/create
     router.post('/create', (req, res) => {
         const ipAddr = req.ip;
+        var url = "";
+
         console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${datetime}`);
 
         if (!req.query.url) {
@@ -163,49 +181,43 @@ try {
         var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
         pingURL = pingURL.split("/")[0];
 
-        try {
-            if (req.query.url.includes("http://")) {
-                // ping to 80 port
-                tcp.probe(pingURL, 80, (err, available) => {
-                    if (err || !available) {
-                        console.log(err);
-                        return res.json({response: 400, error: "Ping failed for requested URL."});
-                    }
-                });
-            }
+        async() => {
 
-            else if (req.query.url.includes("https://")) {
-                // ping to 443 port
-                tcp.probe(pingURL, 443, (err, available) => {
-                    if (err || !available) {
-                        console.log(err);
-                        return res.json({response: 400, error: "Ping failed for requested URL."});
-                    }
-                });
-            }
+            console.log(probe(pingURL, 80));
 
+        if ((req.query.url).includes("http://") === true) {
+            // ping to 80 port
+            if (await probe(pingURL, 80) === true) {
+                url = req.query.url;
+            }
             else {
-                tcp.probe(pingURL, 443, (err, available) => {
-                    if (available && !err) {
-                        req.query.url = "https://" + req.query.url;
-                    }
-                    else {
-                        tcp.probe(pingURL, 80, (err, available) => {
-                            if (available && !err) {
-                                req.query.url = "http://" + req.query.url;
-                            }
-                            else {
-                                return res.json({response: 400, error: "Ping failed for requested URL."});
-                            }
-                        });
-                    }
-                });
+                return res.json({response: 400, error: "Ping failed for requested URL."});
             }
         }
-        catch (err) {
-            console.log(err);
-            return res.json({response: 400, error: "Ping failed for requested URL."});
+
+        else if ((req.query.url).includes("https://") === true) {
+            // ping to 443 port
+            if (await probe(pingURL, 443) === true) {
+                url = req.query.url;
+            }
+            else {
+                return res.json({response: 400, error: "Ping failed for requested URL."});
+            }
         }
+
+        else {
+            if (await probe(pingURL, 443) === true) {
+                url = "https://" + req.query.url;
+            }
+            else if (await probe(pingURL, 80) === true) {
+                url = "http://" + req.query.url;
+            }
+            else {
+                return res.json({response: 400, error: "Ping failed for requested URL."});
+            }
+        }
+
+    }
 
         if (!req.query.code) {
             var random = Math.floor((Math.random() * (2176782335 - 46656)) + 46656);
@@ -214,6 +226,10 @@ try {
         }
         else {
             var code = req.query.code;
+        }
+
+        if (url.length == 0) {
+            return res.json({response: 400, error: "Invalid URL."});
         }
 
         db.query("SELECT * FROM link", (err, links) => {
@@ -225,13 +241,13 @@ try {
             if (links.filter(d => d.code == req.query.code).length) {
                 return res.json({response: 409, error: "Link code already exists."});
             }
-
-            db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [req.query.url, code, dateTimeNow], (err) => {
+    
+            db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [url, code, dateTimeNow], (err) => {
                 if (err) {
                     console.log(err);
                     return res.json({response: 500, error: "Internal server error."});
                 }
-                return res.json({response: 200, message: "Link created successfully.", info: {url: req.query.url, code: code, created: dateTimeNow}});
+                return res.json({response: 200, message: "Link created successfully.", info: {url: url, code: code, created: dateTimeNow}});
             });
         });
     });
