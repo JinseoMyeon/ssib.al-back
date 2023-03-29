@@ -3,7 +3,6 @@ const db = require("../db/db.js");
 const isReachable = require('is-reachable');
 
 const router = express.Router();
-const datetime = new Date().toLocaleString();
 
 const urlRegex = /(http(s)?:\/\/)?(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
 
@@ -152,7 +151,7 @@ try {
         const ipAddr = req.ip;
         let url = "";
 
-        console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${datetime}`);
+        console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
 
         if (!req.query.url) {
             return res.json({response: 400, error: "No query parameters provided."});
