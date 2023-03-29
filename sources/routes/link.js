@@ -9,18 +9,6 @@ const urlRegex = /(http(s)?:\/\/)?(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z�
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
 
-async function dbQuerySearch(url) {
-    return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM link_censored WHERE url LIKE '%${url}%'`, (err, links) => {
-            if (err) {
-                console.log(err);
-                return res.json({ response: 500, error: "Internal server error." });
-            }
-            resolve(links);
-        });
-    });
-}
-
 try {
     // GET /link
     router.get('', (req, res) => {
@@ -173,8 +161,16 @@ try {
         pingURL = pingURL.split("/")[0];
 
         (async () => {
-            const prohibitQueryResult = await dbQuerySearch(pingURL);
-            console.log(prohibitQueryResult)
+            const prohibitQueryResult = await new Promise((resolve, reject) => {
+                db.query(`SELECT * FROM link_censored WHERE url LIKE '%${pingURL}%'`, (err, links) => {
+                    if (err) {
+                        console.log(err);
+                        return res.json({ response: 500, error: "Internal server error." });
+                    }
+                    resolve(links);
+                });
+            });
+
             if (prohibitQueryResult.length) {
                 return res.json({response: 400, error: "This URL is prohibited to shorten."});
             }
