@@ -248,8 +248,8 @@ try {
     router.patch('/update/:origcode', (req, res) => {
         const ipAddr = req.ip;
 
-        if (!req.headers.authorization || req.headers.authorization != process.env.ADMIN_APIKEY || uuidAPIKey.check(req.headers.authorization, process.env.ADMIN_UUID) === false) {
-            console.log(`[WARN] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow} with Wrong API_KEY, '${req.headers.authorization}'`);
+        if (!req.headers.auth || req.headers.auth != process.env.ADMIN_APIKEY || uuidAPIKey.check(req.headers.auth, process.env.ADMIN_UUID) === false) {
+            console.log(`[WARN] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow} with Wrong API_KEY, '${req.headers.auth}'`);
             return res.json({response: 401, error: "Unauthorized."});
         }
         console.log(`[INFO] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
