@@ -7,6 +7,21 @@ try {
     const link = require("./sources/routes/link.js");
     app.use("/link", link);
 
+    /* const linkInfo = require("./sources/routes/link/info.js");
+    app.use("/link/info", linkInfo);
+
+    const linkSearch = require("./sources/routes/link/search.js");
+    app.use("/link/search", linkSearch);
+
+    const linkCreate = require("./sources/routes/link/create.js");
+    app.use("/link/create", linkCreate);
+
+    const linkUpdate = require("./sources/routes/link/update.js");
+    app.use("/link/update", linkUpdate); */
+
+    //const linkDelete = require("./sources/routes/link/delete.js");
+    //app.use("/link/delete", linkDelete);
+
     app.listen(process.env.PORT, () => console.log(`[API] Server started on port ${process.env.PORT}`));
 }
 catch (err) {
