@@ -265,11 +265,12 @@ try {
             return res.json({response: 400, error: "No query parameters provided."});
         }
 
-        if (req.query.url) {
-            var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
-            pingURL = pingURL.split("/")[0];
+        (async () => {
 
-            (async () => {
+            if (req.query.url) {
+                var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
+                pingURL = pingURL.split("/")[0];
+
                 const prohibitQueryResult = await new Promise((resolve, reject) => {
                     db.query(`SELECT * FROM link_censored WHERE url LIKE '%${pingURL}%'`, (err, links) => {
                         if (err) {
@@ -318,38 +319,37 @@ try {
                 if (url.length == 0) {
                     return res.json({response: 400, error: "Invalid URL."});
                 }
+            }
 
-                db.query("SELECT * FROM link", (err, links) => {
+            db.query("SELECT * FROM link", (err, links) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({response: 500, error: "Internal server error."});
+                }
+    
+                if (!links.filter(d => d.code == req.params.origcode).length) {
+                    return res.json({response: 404, error: "No link found with that ID."});
+                }                  
+
+                if (req.query.code && req.query.code != req.params.origcode) {
+                    if (links.filter(d => d.code == req.query.code).length) {
+                        return res.json({response: 409, error: "Link code already exists."});
+                    }
+                    code = req.query.code;
+                }
+                else {
+                    code = req.params.origcode;
+                }
+    
+                db.query("UPDATE link SET url = ?, code = ? WHERE code = ?", [url, code, req.params.origcode], (err) => {
                     if (err) {
                         console.log(err);
                         return res.json({response: 500, error: "Internal server error."});
                     }
-        
-                    if (!links.filter(d => d.code == req.params.origcode).length) {
-                        return res.json({response: 404, error: "No link found with that ID."});
-                    }
-
-                    if (!req.query.code) {                        
-                        code = req.params.origcode;
-                    }
-                    else {
-                        if (links.filter(d => d.code == req.query.code).length) {
-                            return res.json({response: 409, error: "Link code already exists."});
-                        }
-                        else
-                            code = req.query.code;
-                    }
-        
-                    db.query("UPDATE link SET url = ?, code = ? WHERE code = ?", [url, code, req.params.origcode], (err) => {
-                        if (err) {
-                            console.log(err);
-                            return res.json({response: 500, error: "Internal server error."});
-                        }
-                        return res.json({response: 200, message: "Link updated successfully.", info: {originalCode: req.params.origcode, url: url, code: code, created: dateTimeNow}});
-                    });
+                    return res.json({response: 200, message: "Link updated successfully.", info: {originalCode: req.params.origcode, url: url, code: code, created: dateTimeNow}});
                 });
-            })();
-        }
+            });
+        })();
     });
 }
 
