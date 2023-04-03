@@ -340,6 +340,10 @@ try {
                 else {
                     code = req.params.origcode;
                 }
+
+                if (!req.query.url) {
+                    url = links.filter(d => d.code == req.params.origcode)[0].url;
+                }
     
                 db.query("UPDATE link SET url = ?, code = ? WHERE code = ?", [url, code, req.params.origcode], (err) => {
                     if (err) {
