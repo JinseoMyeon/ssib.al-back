@@ -1,11 +1,7 @@
 const express = require("express");
 const db = require("../db/db.js");
-const isReachable = require('is-reachable');
-const uuidAPIKey = require('uuid-apikey');
 
 const router = express.Router();
-
-const urlRegex = /(http(s)?:\/\/)?(www\.)?[-a-z0-9가-힣@:%._\+~#=]{1,}\.[-a-z가-힣]{2,}([-a-z0-9가-힣@:%_\+.~#()?&//=]*)/gi;
 
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
