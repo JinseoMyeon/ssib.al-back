@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../db/db.js");
 
 const router = express.Router();
+router.use(express.urlencoded({ extended: false }));
 
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
