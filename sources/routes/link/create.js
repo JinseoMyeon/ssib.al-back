@@ -5,13 +5,12 @@ const isReachable = require('is-reachable');
 const router = express.Router();
 router.use(express.urlencoded({ extended: false }));
 
-const date = new Date();
-const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
-
 try {
         // POST /link/create
         router.post('', (req, res) => {
             const ipAddr = req.ip;
+            const date = new Date();
+            const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
             let url = "";
     
             console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);

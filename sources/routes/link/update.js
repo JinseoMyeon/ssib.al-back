@@ -6,13 +6,12 @@ const uuidAPIKey = require('uuid-apikey');
 const router = express.Router();
 router.use(express.urlencoded({ extended: false }));
 
-const date = new Date();
-const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`; 
-
 try {
     // PATCH /link/update[/:origcode] (ADMIN)
     router.patch('/:origcode', (req, res) => {
         const ipAddr = req.ip;
+        const date = new Date();
+        const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
         if (req.headers.auth !== process.env.ADMIN_APIKEY || uuidAPIKey.check(req.headers.auth, process.env.ADMIN_UUID) === false) {
             console.log(`[WARN] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow} with Wrong API_KEY, '${req.headers.auth}'`);

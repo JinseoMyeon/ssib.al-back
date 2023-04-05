@@ -4,13 +4,13 @@ const db = require("../db/db.js");
 const router = express.Router();
 router.use(express.urlencoded({ extended: false }));
 
-const date = new Date();
-const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours() + 9}:${date.getMinutes()}:${date.getSeconds()}`;
-
 try {
     // GET /link
     router.get('', (req, res) => {
         const ipAddr = req.ip;
+        const date = new Date();
+        const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
         console.log(`[INFO] ${ipAddr} requested /link with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
         db.query("SELECT * FROM link", (err, links) => {
             if (err) {

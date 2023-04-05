@@ -2,6 +2,9 @@ const express = require("express");
 app = express();
 app.use(express.urlencoded({ extended: false }));
 app.set('trust proxy', true);
+
+const date = new Date();
+const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
    
 try {
     const link = require("./sources/routes/link.js");
@@ -22,7 +25,7 @@ try {
     //const linkDelete = require("./sources/routes/link/delete.js");
     //app.use("/link/delete", linkDelete);
 
-    app.listen(process.env.PORT, () => console.log(`[API] Server started on port ${process.env.PORT}`));
+    app.listen(process.env.PORT, () => console.log(`[API] Server started on port ${process.env.PORT} at ${dateTimeNow}`));
 }
 catch (err) {
     console.log(`[ERROR] ${err}`);
