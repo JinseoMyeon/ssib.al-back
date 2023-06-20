@@ -35,7 +35,7 @@ try {
                 // 커스텀 코드로 링크 검색
             
                 if (req.query.code) {
-                    const result = links.filter(d => d.code.includes(req.query.code));
+                    const result = links.filter(d => d.link_code.includes(req.query.code));
                     if (!result.length)
                         return res.json({response: 404, error: "No link found with that ID."})
             
@@ -45,7 +45,7 @@ try {
                 // URL로 링크 검색
             
                 if (req.query.url) {
-                    const result = links.filter(d => d.url.includes(req.query.url));
+                    const result = links.filter(d => d.link_url.includes(req.query.url));
                     if (!result.length)
                         return res.json({response: 404, error: "No link found with that ID."})
             
@@ -55,10 +55,10 @@ try {
                 // 정렬
     
                 if (req.query.sort == "asc") {
-                    links.sort((a, b) => a.id - b.id);
+                    links.sort((a, b) => a.link_id - b.link_id);
                 }
                 else if (req.query.sort == "desc") {
-                    links.sort((a, b) => b.id - a.id);
+                    links.sort((a, b) => b.link_id - a.link_id);
                 }
                 else if (req.query.sort) {
                     return res.json({response: 400, error: "Invalid sort query parameter."});

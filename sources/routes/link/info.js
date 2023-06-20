@@ -28,7 +28,7 @@ try {
             }
 
             if (req.query.id) {
-                const result = links.filter(d => d.id == req.query.id);
+                const result = links.filter(d => d.link_id == req.query.id);
                 if (isNaN(req.query.id)) 
                     return res.json({response: 400, error: "Invalid id query parameter."});
 
@@ -39,7 +39,7 @@ try {
             }
         
             if (req.query.code) {
-                const result = links.filter(d => d.code == req.query.code);
+                const result = links.filter(d => d.link_code == req.query.code);
                 if (!result.length)
                     return res.json({response: 404, error: "No link found with that ID."})
         

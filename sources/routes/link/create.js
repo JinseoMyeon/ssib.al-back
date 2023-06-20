@@ -24,7 +24,7 @@ try {
     
             (async () => {
                 const prohibitQueryResult = await new Promise((resolve, reject) => {
-                    db.query(`SELECT * FROM link_censored WHERE url LIKE '%${pingURL}%'`, (err, links) => {
+                    db.query(`SELECT * FROM link_prohibited WHERE prohibit_url LIKE '%${pingURL}%'`, (err, links) => {
                         if (err) {
                             console.log(err);
                             return res.json({ response: 500, error: "Internal server error." });
@@ -91,12 +91,12 @@ try {
                     return res.json({response: 409, error: "Link code already exists."});
                 }
         
-                db.query("INSERT INTO link (url, code, created) VALUES (?, ?, ?)", [url, code, dateTimeNow], (err) => {
+                db.query("INSERT INTO link (link_url, link_code, link_datetime, creator_ip) VALUES (?, ?, ?, ?)", [url, code, dateTimeNow, ipAddr], (err) => {
                     if (err) {
                         console.log(err);
                         return res.json({response: 500, error: "Internal server error."});
                     }
-                    return res.json({response: 200, message: "Link created successfully.", info: {url: url, code: code, created: dateTimeNow}});
+                    return res.json({response: 200, message: "Link created successfully.", info: {link_url: url, link_code: code, link_datetime: dateTimeNow, creator_ip: ipAddr}});
                 });
             });
     
