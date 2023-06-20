@@ -7,22 +7,22 @@ const router = express.Router();
 router.use(express.urlencoded({ extended: false }));
 
 try {
-    // PATCH /link/update[/:origcode] (ADMIN)
-    router.patch('/:origcode', (req, res) => {
+    // PATCH /link/update[/:originalcode] (ADMIN)
+    router.patch('/:originalcode', (req, res) => {
         const ipAddr = req.ip;
         const date = new Date();
         const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
         if (req.headers.auth !== process.env.ADMIN_APIKEY || uuidAPIKey.check(req.headers.auth, process.env.ADMIN_UUID) === false) {
-            console.log(`[WARN] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow} with Wrong API_KEY, '${req.headers.auth}'`);
+            console.log(`[WARN] ${ipAddr} requested /link/update/${req.params.originalcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow} with Wrong API_KEY, '${req.headers.auth}'`);
             return res.json({response: 401, error: "Unauthorized."});
         }
-        console.log(`[INFO] ${ipAddr} requested /link/update/${req.params.origcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
+        console.log(`[INFO] ${ipAddr} requested /link/update/${req.params.originalcode} with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
 
         var url;
         var code;
 
-        if (!req.params.origcode) {
+        if (!req.params.originalcode) {
             return res.json({response: 400, error: "No query parameters provided."});
         }
         
@@ -37,7 +37,7 @@ try {
                 pingURL = pingURL.split("/")[0];
 
                 const prohibitQueryResult = await new Promise((resolve, reject) => {
-                    db.query(`SELECT * FROM link_censored WHERE url LIKE '%${pingURL}%'`, (err, links) => {
+                    db.query(`SELECT * FROM link_prohibit WHERE prohibit_url LIKE '%${pingURL}%'`, (err, links) => {
                         if (err) {
                             console.log(err);
                             return res.json({ response: 500, error: "Internal server error." });
@@ -92,30 +92,32 @@ try {
                     return res.json({response: 500, error: "Internal server error."});
                 }
     
-                if (!links.filter(d => d.code == req.params.origcode).length) {
+                if (!links.filter(d => d.link_code == req.params.originalcode).length) {
                     return res.json({response: 404, error: "No link found with that ID."});
                 }                  
 
-                if (req.query.code && req.query.code != req.params.origcode) {
-                    if (links.filter(d => d.code == req.query.code).length) {
+                if (req.query.code && req.query.code != req.params.originalcode) {
+                    if (links.filter(d => d.link_code == req.query.code).length) {
                         return res.json({response: 409, error: "Link code already exists."});
                     }
                     code = req.query.code;
                 }
                 else {
-                    code = req.params.origcode;
+                    code = req.params.originalcode;
                 }
 
                 if (!req.query.url) {
-                    url = links.filter(d => d.code == req.params.origcode)[0].url;
+                    url = links.filter(d => d.link_code == req.params.originalcode)[0].link_url;
                 }
+
+                modifiedCounts = links.filter(d => d.link_code == req.params.originalcode)[0].modified_count + 1;
     
-                db.query("UPDATE link SET url = ?, code = ? WHERE code = ?", [url, code, req.params.origcode], (err) => {
+                db.query("UPDATE link SET link_url = ?, link_code = ?, modified_count = ?, modified_datetime = ? WHERE link_code = ?", [url, code, modifiedCounts, dateTimeNow, req.params.originalcode], (err) => {
                     if (err) {
                         console.log(err);
                         return res.json({response: 500, error: "Internal server error."});
                     }
-                    return res.json({response: 200, message: "Link updated successfully.", info: {originalCode: req.params.origcode, url: url, code: code, created: dateTimeNow}});
+                    return res.json({response: 200, message: "Link updated successfully.", info: {originalCode: req.params.originalcode, link_url: url, link_code: code, modified_count: modifiedCounts, modified_datetime: dateTimeNow}});
                 });
             });
         })();
