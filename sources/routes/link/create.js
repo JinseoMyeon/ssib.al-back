@@ -87,7 +87,7 @@ try {
                     return res.json({response: 500, error: "Internal server error."});
                 }
     
-                if (links.filter(d => d.code == req.query.code).length) {
+                if (links.filter(d => d.link_code == req.query.code).length) {
                     return res.json({response: 409, error: "Link code already exists."});
                 }
         
