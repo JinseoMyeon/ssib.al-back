@@ -21,7 +21,11 @@ try {
             return res.json({response: 400, error: "No query parameters provided."});
         }
 
-        db.query(`SELECT * FROM link WHERE link_code = '${req.query.code}' OR link_id = '${req.query.id}'`, (err, result) => {
+        if (!req.query.id) {
+            req.query.id = 0;
+        }
+
+        db.query(`SELECT * FROM link WHERE link_code = '${req.query.code}' OR link_id = ?`, [req.query.id], (err, result) => {
             if (err) {
                 console.log(err);
                 return res.json({ response: 500, error: "Internal server error." });
@@ -33,7 +37,7 @@ try {
                 return res.json({ response: 400, error: "Multiple links found." });
             }
 
-            db.query(`DELETE FROM link WHERE link_code = '${req.query.code}' OR link_id = '${req.query.id}'`, (err, result) => {
+            db.query(`DELETE FROM link WHERE link_code = '${req.query.code}' OR link_id = ?`, [req.query.id], (err, result) => {
                 if (err) {
                     console.log(err);
                     return res.json({ response: 500, error: "Internal server error." });
