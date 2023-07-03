@@ -16,7 +16,7 @@ try {
             console.log(`[INFO] ${ipAddr} requested /link/create with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
     
             if (!req.query.url) {
-                return res.json({response: 400, error: "No query parameters provided."});
+                return res.statusCode = 400, res.json({response: 400, error: "No query parameters provided."});
             }
     
             var pingURL = req.query.url.replace("https://", "").replace("http://", "").replace("www.", "");
@@ -27,14 +27,14 @@ try {
                     db.query(`SELECT * FROM link_prohibited WHERE prohibit_url LIKE '%${pingURL}%'`, (err, links) => {
                         if (err) {
                             console.log(err);
-                            return res.json({ response: 500, error: "Internal server error." });
+                            return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
                         }
                         resolve(links);
                     });
                 });
     
                 if (prohibitQueryResult.length) {
-                    return res.json({response: 400, error: "This URL is prohibited to shorten."});
+                    return res.statusCode = 405, res.json({response: 405, error: "URL is not allowed to shorten."});
                 }
     
                 const httpsResult = await isReachable(`${pingURL}:443`);
@@ -44,14 +44,14 @@ try {
                     if (httpsResult)
                         url = req.query.url;
                     else 
-                        return res.json({response: 400, error: "Ping request failed for requested URL."});
+                        return res.statusCode = 406, res.json({response: 406, error: "Requested URL does not request, or is not reachable."});
                 }
     
                 else if (req.query.url.includes("http://")) {
                     if (httpResult)
                         url = req.query.url;
                     else
-                        return res.json({response: 400, error: "Ping request failed for requested URL."});
+                        return res.statusCode = 406, res.json({response: 406, error: "Requested URL does not request, or is not reachable."});
                 }
     
                 else {
@@ -64,39 +64,38 @@ try {
                     }
                     
                     else {
-                        return res.json({response: 400, error: "Ping request failed for requested URL."});
+                        return res.statusCode = 406, res.json({response: 406, error: "Requested URL does not request, or is not reachable."});
                     }
                 }
     
             if (!req.query.code) {
                 var random = Math.floor((Math.random() * (2176782335 - 46656)) + 46656);
                 var code = random.toString(36);
-                console.log(code)
             }
             else {
                 var code = req.query.code;
             }
     
             if (url.length == 0) {
-                return res.json({response: 400, error: "Invalid URL."});
+                return res.statusCode = 406, res.json({response: 406, error: "Requested URL does not request, or is not reachable."});
             }
     
             db.query("SELECT * FROM link", (err, links) => {
                 if (err) {
                     console.log(err);
-                    return res.json({response: 500, error: "Internal server error."});
+                    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
                 }
     
                 if (links.filter(d => d.link_code == req.query.code).length) {
-                    return res.json({response: 409, error: "Link code already exists."});
+                    return res.statusCode = 409, res.json({response: 409, error: "Requested code is already in use."});
                 }
         
                 db.query("INSERT INTO link (link_url, link_code, link_datetime, creator_ip) VALUES (?, ?, ?, ?)", [url, code, dateTimeNow, ipAddr], (err) => {
                     if (err) {
                         console.log(err);
-                        return res.json({response: 500, error: "Internal server error."});
+                        return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
                     }
-                    return res.json({response: 200, message: "Link created successfully.", info: {link_url: url, link_code: code, link_datetime: dateTimeNow, creator_ip: ipAddr}});
+                    return res.statusCode = 201, res.json({response: 201, message: "Link created successfully.", info: {link_url: url, link_code: code, link_datetime: dateTimeNow, creator_ip: ipAddr}});
                 });
             });
     
@@ -106,7 +105,7 @@ try {
 }
 catch (err) {
     console.log(`[ERROR] ${err}`);
-    return res.json({ response: 500, error: "Internal server error." });
+    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
 }
 
 module.exports = router;
