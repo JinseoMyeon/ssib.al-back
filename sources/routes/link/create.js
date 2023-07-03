@@ -34,7 +34,7 @@ try {
                 });
     
                 if (prohibitQueryResult.length) {
-                    return res.statusCode = 405, res.json({response: 405, error: "URL is not allowed to shorten."});
+                    return res.statusCode = 405, res.json({response: 405, error: "This URL is not allowed to shorten."});
                 }
     
                 const httpsResult = await isReachable(`${pingURL}:443`);

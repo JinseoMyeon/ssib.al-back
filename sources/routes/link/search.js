@@ -19,7 +19,7 @@ try {
             db.query("SELECT * FROM link", (err, links) => {
                 if (err) {
                     console.log(err);
-                    return res.json({response: 500, error: "Internal server error."});
+                    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
                 }
     
                 // 출력할 링크가 없을 경우 404 반환
@@ -29,7 +29,7 @@ try {
                 }
     
                 if (!req.query.url && !req.query.code && !req.query.point && !req.query.sort && !req.query.number) {
-                    return res.json({response: 400, error: "No query parameters provided."});
+                    return res.statusCode = 400, res.json({response: 400, error: "No query parameters provided."});
                 }
     
                 // 커스텀 코드로 링크 검색
@@ -37,7 +37,7 @@ try {
                 if (req.query.code) {
                     const result = links.filter(d => d.link_code.includes(req.query.code));
                     if (!result.length)
-                        return res.json({response: 404, error: "No link found with that ID."})
+                        return res.statusCode = 404, res.json({response: 404, error: "No link found with that ID."});
             
                     links = result;
                 }
@@ -47,7 +47,7 @@ try {
                 if (req.query.url) {
                     const result = links.filter(d => d.link_url.includes(req.query.url));
                     if (!result.length)
-                        return res.json({response: 404, error: "No link found with that ID."})
+                        return res.statusCode = 404, res.json({response: 404, error: "No link found with that ID."});
             
                     links = result;
                 }
@@ -61,7 +61,7 @@ try {
                     links.sort((a, b) => b.link_id - a.link_id);
                 }
                 else if (req.query.sort) {
-                    return res.json({response: 400, error: "Invalid sort query parameter."});
+                    return res.statusCode = 400, res.json({response: 400, error: "Invalid sort query parameter."});
                 }
     
                 // 시작 위치
@@ -70,7 +70,7 @@ try {
                     if (!isNaN(req.query.point) && req.query.point < links.length)
                         links = links.slice(req.query.point, links.length);
                     else
-                        return res.json({response: 400, error: "Invalid point query parameter."});
+                        return res.statusCode = 400, res.json({response: 400, error: "Invalid point query parameter."});
                 }
     
                 if (req.query.number && !isNaN(req.query.number)) {
@@ -81,7 +81,7 @@ try {
                             links = links.slice(req.query.point, req.query.point + req.query.number);
                     }
                     else 
-                        return res.json({response: 400, error: "Invalid number query parameter."})
+                        return res.statusCode = 400, res.json({response: 400, error: "Invalid number query parameter."});
                 }
     
                 return res.json({count: links.length, items: links});
@@ -90,7 +90,7 @@ try {
 }
 catch (err) {
     console.log(`[ERROR] ${err}`);
-    return res.json({ response: 500, error: "Internal server error." });
+    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
 }
 
 module.exports = router;

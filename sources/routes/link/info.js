@@ -16,24 +16,24 @@ try {
         db.query("SELECT * FROM link", (err, links) => {
             if (err) {
                 console.log(err);
-                return res.json({response: 500, error: "Internal server error."});
+                return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
             }
 
             if (links.length == 0) {
-                return res.json({response: 404, error: "No links found."});
+                return res.statusCode = 404, res.json({response: 404, error: "No link found with that ID."});
             }
 
             if (!req.query.id && !req.query.code) {
-                return res.json({response: 400, error: "No query parameters provided."});
+                return res.statusCode = 400, res.json({response: 400, error: "No query parameters provided."});
             }
 
             if (req.query.id) {
                 const result = links.filter(d => d.link_id == req.query.id);
                 if (isNaN(req.query.id)) 
-                    return res.json({response: 400, error: "Invalid id query parameter."});
+                return res.statusCode = 400, res.json({response: 400, error: "Invalid id query parameter."});
 
                 if (!result.length)
-                    return res.json({response: 404, error: "No link found with that ID."});
+                    return res.statusCode = 404, res.json({response: 404, error: "No link found with that ID."});
         
                 links = result;
             }
@@ -41,7 +41,7 @@ try {
             if (req.query.code) {
                 const result = links.filter(d => d.link_code == req.query.code);
                 if (!result.length)
-                    return res.json({response: 404, error: "No link found with that ID."})
+                    return res.statusCode = 404, res.json({response: 404, error: "No link found with that ID."});
         
                 links = result;
             }
@@ -52,7 +52,7 @@ try {
 }
 catch (err) {
     console.log(`[ERROR] ${err}`);
-    return res.json({ response: 500, error: "Internal server error." });
+    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
 }
 
 module.exports = router;
