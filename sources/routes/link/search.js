@@ -10,7 +10,7 @@ try {
             const ipAddr = req.ip;
             const date = new Date();
             const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-
+            
             console.log(`[INFO] ${ipAddr} requested /link/search with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
     
             req.query.point = Number(req.query.point);
