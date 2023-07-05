@@ -34,6 +34,13 @@ try {
                 });
     
                 if (prohibitQueryResult.length) {
+                    const prohibitCount = prohibitQueryResult[0].used_count + 1;
+                    db.query("UPDATE link_prohibited SET used_count = ? WHERE prohibit_url = ?", [prohibitCount, pingURL], (err, result) => {
+                        if (err) {
+                            console.log(err);
+                            return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
+                        }
+                    });
                     return res.statusCode = 405, res.json({response: 405, error: "This URL is not allowed to shorten."});
                 }
     
