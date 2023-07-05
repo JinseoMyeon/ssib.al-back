@@ -24,7 +24,16 @@ try {
             if (links.length == 0) {
                 return res.redirect("https://ssib.al/")
             }
-            res.redirect(links[0].link_url);
+            let usedCount = links[0].used_count + 1;
+            db.query("UPDATE link SET used_count = ?, used_datetime = ? WHERE link_code = ?", [usedCount, dateTimeNow, req.params.id], (err) => {
+                if (err) {
+                    console.log(`[ERROR] ${err}`);
+                    return res.statusCode = 500, res.json({response: 500, error: "Internal Server Error."});
+                }
+                else {
+                    res.redirect(links[0].link_url);
+                }
+            });
         });
     });
 } catch (err) {
