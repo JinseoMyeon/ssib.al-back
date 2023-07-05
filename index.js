@@ -17,6 +17,9 @@ try {
     app.use(cors(corsOptions));
     app.use("/link", link);
 
+    const redirection = require("./sources/routes/redirection.js");
+    app.use("/redirection", redirection);
+
     /* const linkInfo = require("./sources/routes/link/info.js");
     app.use("/link/info", linkInfo);
 
