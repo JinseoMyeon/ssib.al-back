@@ -7,8 +7,9 @@ app.set('trust proxy', true);
 const date = new Date();
 const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
+// add 2 pages in corsOptions 
 let corsOptions = {
-    origin: 'https://dev.ssib.al',
+    origin: ['https://dev.ssib.al','https://ssib.al'],
     credentials: true
 };
 
