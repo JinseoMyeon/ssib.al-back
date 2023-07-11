@@ -9,7 +9,7 @@ const dateTimeNow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate
 
 // add 2 pages in corsOptions 
 let corsOptions = {
-    origin: ['https://dev.ssib.al','https://ssib.al'],
+    origin: ['https://dev.ssib.al','https://ssib.al', 'https://www.ssib.al'],
     credentials: true
 };
 
