@@ -83,6 +83,24 @@ try {
                     else 
                         return res.statusCode = 400, res.json({response: 400, error: "Invalid number query parameter."});
                 }
+
+                links.forEach((link) => {
+                    var creatorIp = link.creator_ip;
+                    // detect creator ip version and change to format below
+                    // ipv4 : 123.456.***.***
+                    // ipv6 : 1234:5678:****:****:****:****:****:****
+                
+                    if (creatorIp.includes(":")) {
+                        creatorIp = creatorIp.split(":");
+                        creatorIp = `${creatorIp[0]}:${creatorIp[1]}:****:****:****:****:****:****`;
+                    }
+                    else if (creatorIp.includes(".")) {
+                        creatorIp = creatorIp.split(".");
+                        creatorIp = `${creatorIp[0]}.${creatorIp[1]}.***.***`;
+                    }
+    
+                    link.creator_ip = creatorIp;
+                });
     
                 return res.json({count: links.length, items: links});
             });

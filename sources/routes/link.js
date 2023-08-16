@@ -13,6 +13,24 @@ try {
 
         console.log(`[INFO] ${ipAddr} requested /link with query ${JSON.stringify(req.query)} at ${dateTimeNow}`);
         db.query("SELECT * FROM link", (err, links) => {
+            links.forEach((link) => {
+                var creatorIp = link.creator_ip;
+            // detect creator ip version and change to format below
+            // ipv4 : 123.456.***.***
+            // ipv6 : 1234:5678:****:****:****:****:****:****
+
+                if (creatorIp.includes(":")) {
+                    creatorIp = creatorIp.split(":");
+                    creatorIp = `${creatorIp[0]}:${creatorIp[1]}:****:****:****:****:****:****`;
+                }
+                else if (creatorIp.includes(".")) {
+                    creatorIp = creatorIp.split(".");
+                    creatorIp = `${creatorIp[0]}.${creatorIp[1]}.***.***`;
+                }
+
+                link.creator_ip = creatorIp;
+            });
+
             if (err) {
                 console.log(err);
                 return res.json({response: 500, error: "Internal server error."});
